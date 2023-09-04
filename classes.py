@@ -38,6 +38,23 @@ class DynamoDBChatMessageHistoryNew(DynamoDBChatMessageHistory):
         self.messages = []
 
 
+class DynamoDBChatMessageHistoryNewFunctionsOnly(DynamoDBChatMessageHistoryNew):
+    messages: List[BaseMessage] = []
+
+    def __init__(self, table_name: str, session_id: str, endpoint_url: Optional[str] = None):
+        super().__init__(table_name, session_id, endpoint_url)
+        self.messages = MessageStore.from_chat_history(self)
+
+    def add_message(self, message: BaseMessage) -> None:
+        print(f"\n\n--------Message added of type {type(message)}-----------\n\n")
+        """Append the message to the record in DynamoDB"""
+        self.messages.append(message)
+
+    def clear(self) -> None:
+        super().clear()
+        self.messages = []
+
+
 class MessageStore(list):
     def __init__(self, chat_history: DynamoDBChatMessageHistoryNew, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -130,7 +147,7 @@ class SelfQueryRetrieverNew(SelfQueryRetriever):
         if self.use_original_query:
             new_query = query
 
-        print(new_query)
+        print(f"new_query: {new_query}")
 
         search_kwargs = {**self.search_kwargs, **new_kwargs}
         docs = self.vectorstore.search(new_query, self.search_type, **search_kwargs)

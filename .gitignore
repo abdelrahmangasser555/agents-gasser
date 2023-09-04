@@ -2,4 +2,5 @@ venv/
 test.py
 .idea/
 __pycache__/
-
+data.txt
+ddd.py

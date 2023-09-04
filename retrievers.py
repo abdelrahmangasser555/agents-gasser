@@ -6,6 +6,7 @@ from langchain.embeddings import OpenAIEmbeddings
 from langchain.llms import OpenAI
 from langchain.chains.query_constructor.base import AttributeInfo
 from classes import SelfQueryRetrieverNew
+from langchain.vectorstores.base import VectorStoreRetriever
 
 pinecone.init(api_key="c869cafc-6f9a-4abf-b8ca-d24ebc2f6ccd", environment="us-west1-gcp-free")
 # pinecone.init(api_key=os.environ["PINECONE_API_KEY"], environment="us-west1-gcp-free")
@@ -30,3 +31,5 @@ self_query_retriever_jewelry = SelfQueryRetrieverNew.from_llm(
     verbose=True,
     use_original_query=True,
 )
+
+law_firm_retriever = Pinecone.from_existing_index(index_name="agent", embedding=OpenAIEmbeddings()).as_retriever()
