@@ -7,11 +7,15 @@ from langchain.llms import OpenAI
 from langchain.chains.query_constructor.base import AttributeInfo
 from classes import SelfQueryRetrieverNew
 from langchain.vectorstores.base import VectorStoreRetriever
+import os
+from dotenv import load_dotenv
 
-pinecone.init(api_key="c869cafc-6f9a-4abf-b8ca-d24ebc2f6ccd", environment="us-west1-gcp-free")
-# pinecone.init(api_key=os.environ["PINECONE_API_KEY"], environment="us-west1-gcp-free")
+load_dotenv()
 
-vectorstore = Pinecone.from_existing_index(index_name="rings-new", embedding=OpenAIEmbeddings())
+# yusuf.emad.pinecone email
+pinecone.init(api_key=os.environ["PINECONE_API_KEY"], environment=os.environ["PINECONE1_ENV"])
+
+vectorstore = Pinecone.from_existing_index(index_name="diamonds", embedding=OpenAIEmbeddings())
 
 metadata_field_info = [
     AttributeInfo(name="type", description="The type of the product, only one of (ring, necklace, earring)", type="string"),
@@ -32,4 +36,7 @@ self_query_retriever_jewelry = SelfQueryRetrieverNew.from_llm(
     use_original_query=True,
 )
 
-law_firm_retriever = Pinecone.from_existing_index(index_name="agent", embedding=OpenAIEmbeddings()).as_retriever()
+law_firm_vectorstore = Pinecone.from_existing_index(index_name="diamonds", embedding=OpenAIEmbeddings())
+beauty_clinic_vectorstore = Pinecone.from_existing_index(index_name="diamonds", embedding=OpenAIEmbeddings())
+crypto_vectorstore = Pinecone.from_existing_index(index_name="diamonds", embedding=OpenAIEmbeddings())
+diamonds_vectorstore = Pinecone.from_existing_index(index_name="diamonds", embedding=OpenAIEmbeddings())

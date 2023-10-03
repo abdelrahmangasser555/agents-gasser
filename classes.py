@@ -4,6 +4,7 @@ from langchain.chains.query_constructor.ir import StructuredQuery
 
 from langchain.schema import (
     BaseChatMessageHistory,
+    SystemMessage
 )
 from langchain.schema.messages import (
     BaseMessage,
@@ -25,13 +26,19 @@ logger = logging.getLogger(__name__)
 class DynamoDBChatMessageHistoryNew(DynamoDBChatMessageHistory):
     messages: List[BaseMessage] = []
 
-    def __init__(self, table_name: str, session_id: str, endpoint_url: Optional[str] = None):
+    def __init__(self, table_name: str, session_id: str, endpoint_url: Optional[str] = None, reminder: Optional[str] = None):
         super().__init__(table_name, session_id, endpoint_url)
         self.messages = MessageStore.from_chat_history(self)
+        self.reminder = reminder
 
     def add_message(self, message: BaseMessage) -> None:
         """Append the message to the record in DynamoDB"""
         self.messages.append(message)
+
+        if self.reminder:
+            if len(self.messages) % 4 == 0 and len(self.messages) > 0:
+                system_message = SystemMessage(content=self.reminder)
+                self.messages.append(system_message)
 
     def clear(self) -> None:
         super().clear()
@@ -150,5 +157,6 @@ class SelfQueryRetrieverNew(SelfQueryRetriever):
         print(f"new_query: {new_query}")
 
         search_kwargs = {**self.search_kwargs, **new_kwargs}
+
         docs = self.vectorstore.search(new_query, self.search_type, **search_kwargs)
         return docs
